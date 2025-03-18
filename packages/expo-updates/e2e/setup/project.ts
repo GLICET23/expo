@@ -17,9 +17,11 @@ const dirName = __dirname; /* eslint-disable-line */
 function getExpoDependencyChunks({
   includeDevClient,
   includeTV,
+  includeSplashScreen,
 }: {
   includeDevClient: boolean;
   includeTV: boolean;
+  includeSplashScreen: boolean;
 }) {
   return [
     ['@expo/config-types', '@expo/env', '@expo/json-file'],
@@ -39,12 +41,12 @@ function getExpoDependencyChunks({
       'expo-font',
       'expo-json-utils',
       'expo-keep-awake',
-      'expo-splash-screen',
       'expo-status-bar',
       'expo-structured-headers',
       'expo-updates',
       'expo-updates-interface',
     ],
+    ...(includeSplashScreen ? ['expo-splash-screen'] : []),
     ...(includeDevClient
       ? [['expo-dev-menu-interface'], ['expo-dev-menu'], ['expo-dev-launcher'], ['expo-dev-client']]
       : []),
@@ -252,13 +254,18 @@ async function preparePackageJson(
   configureE2E: boolean,
   isTV: boolean,
   shouldGenerateTestUpdateBundles: boolean,
-  includeDevClient: boolean
+  includeDevClient: boolean,
+  useCustomInit: boolean
 ) {
   // Create the project subfolder to hold NPM tarballs built from the current state of the repo
   const dependenciesPath = path.join(projectRoot, 'dependencies');
   await fs.mkdir(dependenciesPath);
 
-  const allDependencyChunks = getExpoDependencyChunks({ includeDevClient, includeTV: isTV });
+  const allDependencyChunks = getExpoDependencyChunks({
+    includeDevClient,
+    includeTV: isTV,
+    includeSplashScreen: !useCustomInit,
+  });
 
   console.time('Done packing dependencies');
   for (const dependencyChunk of allDependencyChunks) {
@@ -669,6 +676,7 @@ export async function initAsync(
     shouldGenerateTestUpdateBundles = true,
     shouldConfigureCodeSigning = true,
     includeDevClient = false,
+    useCustomInit = false,
   }: {
     repoRoot: string;
     runtimeVersion: string;
@@ -684,6 +692,7 @@ export async function initAsync(
     shouldGenerateTestUpdateBundles?: boolean;
     shouldConfigureCodeSigning?: boolean;
     includeDevClient?: boolean;
+    useCustomInit?: boolean;
   }
 ) {
   console.log('Creating expo app');
@@ -735,7 +744,8 @@ export async function initAsync(
     configureE2E,
     isTV,
     shouldGenerateTestUpdateBundles,
-    includeDevClient
+    includeDevClient,
+    useCustomInit
   );
 
   // configure app.json
@@ -754,9 +764,11 @@ export async function initAsync(
   }
 
   // pack local template and prebuild, but do not reinstall NPM
-  const prebuildTemplateName = 'expo-template-bare-minimum';
-
-  const localTemplatePath = path.join(repoRoot, 'templates', prebuildTemplateName);
+  const localTemplatePath = path.join(
+    repoRoot,
+    'templates',
+    useCustomInit ? 'expo-template-custom-init' : 'expo-template-bare-minimum'
+  );
   const localTemplatePathName = await spawnNpmPackAsync({
     cwd: localTemplatePath,
     outputDir: projectRoot,
