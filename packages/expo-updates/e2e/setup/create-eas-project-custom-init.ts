@@ -3,7 +3,7 @@
 import nullthrows from 'nullthrows';
 import path from 'path';
 
-import { initAsync, setupE2EAppAsync } from './project';
+import { initAsync, setupE2EAppAsync, transformAppJsonForE2EWithCustomInit } from './project';
 
 const repoRoot = nullthrows(process.env.EXPO_REPO_ROOT, 'EXPO_REPO_ROOT is not defined');
 const workingDir = path.resolve(repoRoot, '..');
@@ -35,6 +35,7 @@ const runtimeVersion = '1.0.0';
     runtimeVersion,
     localCliBin,
     useCustomInit: true,
+    transformAppJson: transformAppJsonForE2EWithCustomInit,
   });
 
   await setupE2EAppAsync(projectRoot, { localCliBin, repoRoot });

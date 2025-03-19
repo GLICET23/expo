@@ -513,6 +513,22 @@ function transformAppJsonForE2E(
   };
 }
 
+export function transformAppJsonForE2EWithCustomInit(
+  appJson: any,
+  projectName: string,
+  runtimeVersion: string,
+  isTV: boolean
+) {
+  const transformedForE2E = transformAppJsonForE2E(appJson, projectName, runtimeVersion, isTV);
+  return {
+    ...transformedForE2E,
+    expo: {
+      ...transformedForE2E.expo,
+      newArchEnabled: true,
+    },
+  };
+}
+
 /**
  * Modifies app.json in the E2E test app to add the properties we need, and sets the runtime version policy to fingerprint
  */
