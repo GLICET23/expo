@@ -46,7 +46,7 @@ function getExpoDependencyChunks({
       'expo-updates',
       'expo-updates-interface',
     ],
-    ...(includeSplashScreen ? ['expo-splash-screen'] : []),
+    ...(includeSplashScreen ? [['expo-splash-screen']] : []),
     ...(includeDevClient
       ? [['expo-dev-menu-interface'], ['expo-dev-menu'], ['expo-dev-launcher'], ['expo-dev-client']]
       : []),
