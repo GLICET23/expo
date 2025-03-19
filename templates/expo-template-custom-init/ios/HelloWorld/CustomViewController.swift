@@ -47,12 +47,12 @@ public class CustomViewController: UIViewController, AppControllerDelegate {
   }
 
   private func createView() {
-    let rootView = appDelegate.rootViewFactory.view(
-      withModuleName: appDelegate.moduleName ?? "main",
+    let rootViewFactory: RCTRootViewFactory = appDelegate.reactNativeFactory!.rootViewFactory
+    let rootView = rootViewFactory.view(
+      withModuleName: appDelegate.moduleName,
       initialProperties: appDelegate.initialProps,
       launchOptions: appDelegate.launchOptions
     )
-    self.view.addSubview(rootView)
     let controller = self
     controller.view.clipsToBounds = true
     controller.view.addSubview(rootView)

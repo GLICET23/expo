@@ -1,10 +1,10 @@
-import ExpoModulesCore
+import Expo
 import EXUpdates
 import React
 import UIKit
 
 @UIApplicationMain
-class AppDelegate: EXAppDelegateWrapper, UNUserNotificationCenterDelegate {
+class AppDelegate: ExpoAppDelegate {
   var launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   // AppDelegate keeps a nullable reference to the updates controller
   var updatesController: (any InternalAppControllerInterface)?
@@ -38,16 +38,15 @@ class AppDelegate: EXAppDelegateWrapper, UNUserNotificationCenterDelegate {
   // Required initialization of react-native and expo-updates
   private func initializeReactNativeAndUpdates(_ launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
     self.launchOptions = launchOptions
-    self.moduleName = "App"
+    self.moduleName = "main"
     self.initialProps = [:]
-    // Call the superclass method to create the root view factory,
-    // needed to initialize the React Native root view later
-    self.rootViewFactory = createRCTRootViewFactory()
+    self.reactNativeFactory = ExpoReactNativeFactory(delegate: self, reactDelegate: self.reactDelegate)
     // AppController instance must always be created first.
     // expo-updates creates a different type of controller
     // depending on whether updates is enabled, and whether
     // we are running in development mode or not.
-    AppController.initializeWithoutStarting()  }
+    AppController.initializeWithoutStarting()
+  }
 
   /**
    Application launch initializes the custom view controller: all React Native
@@ -64,8 +63,8 @@ class AppDelegate: EXAppDelegateWrapper, UNUserNotificationCenterDelegate {
     self.window = UIWindow(frame: UIScreen.main.bounds)
     let controller = CustomViewController()
     controller.view.clipsToBounds = true
-    self.window.rootViewController = controller
-    window.makeKeyAndVisible()
+    self.window?.rootViewController = controller
+    window?.makeKeyAndVisible()
 
     return true
   }
